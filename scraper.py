@@ -11,28 +11,97 @@ PARTNER_ID = "57563"
 
 STORES_CONFIG = {
     "Faraos Cigarer": {
-        "banner_id": "1234", # Erstat med Faraos Cigarers banner/program-ID fra Partner-ads
+        "banner_id": "1234",  # Erstat med Faraos Cigarers banner-ID fra Partner-ads
         "price_selector": ".price"
     },
     "Kelz0r": {
-        "banner_id": "5678", # Erstat med Kelz0rs banner/program-ID fra Partner-ads
-        "price_selector": ".product-price"
+        "banner_id": "5678",  # Erstat med Kelz0rs banner-ID fra Partner-ads
+        "price_selector": ".price, .product-price, span.price"
     }
 }
 
 # ==========================================
-# PRODUKTOVERSIGT
-# Her tilføjer du nemt nye produkter og deres almindelige links fremover!
+# PRODUKTOVERSIGT (De mest populære sæt)
 # ==========================================
 PRODUCTS = [
+    # --- WARHAMMER 40,000 ---
+    {
+        "id": "warhammer-40k-ultimate-starter-set",
+        "name": "Warhammer 40,000: Ultimate Starter Set",
+        "category": "warhammer-40k",
+        "stores": [
+            {
+                "store_name": "Faraos Cigarer",
+                "url": "https://www.faraos.dk/games/warhammer40k/startersets/warhammer-40.000-ultimate-starter-set-en"
+            },
+            {
+                "store_name": "Kelz0r",
+                "url": "https://www.kelz0r.dk/magic/warhammer-40000-ultimate-starter-set-eng-p-26305.html"
+            }
+        ]
+    },
     {
         "id": "warhammer-combat-patrol-space-marines",
         "name": "Warhammer 40,000: Combat Patrol - Space Marines",
-        "category": "warhammer",
+        "category": "warhammer-40k",
         "stores": [
             {
                 "store_name": "Faraos Cigarer",
                 "url": "https://www.faraos.dk/games/warhammer40k/spacemarines/combat-patrol-space-marines"
+            },
+            {
+                "store_name": "Kelz0r",
+                "url": "https://www.kelz0r.dk/magic/warhammer-40000-combat-patrol-space-marines-p-26306.html"
+            }
+        ]
+    },
+    {
+        "id": "warhammer-combat-patrol-ultimate-tyranids",
+        "name": "Warhammer 40,000: Combat Patrol - Tyranids",
+        "category": "warhammer-40k",
+        "stores": [
+            {
+                "store_name": "Faraos Cigarer",
+                "url": "https://www.faraos.dk/games/warhammer40k/tyranids/combat-patrol-tyranids"
+            },
+            {
+                "store_name": "Kelz0r",
+                "url": "https://www.kelz0r.dk/magic/warhammer-40000-combat-patrol-tyranids-p-26307.html"
+            }
+        ]
+    },
+    {
+        "id": "warhammer-40k-introductory-set",
+        "name": "Warhammer 40,000: Introductory Set",
+        "category": "warhammer-40k",
+        "stores": [
+            {
+                "store_name": "Faraos Cigarer",
+                "url": "https://www.faraos.dk/games/warhammer40k/startersets/warhammer-40.000-introductory-set-en"
+            }
+        ]
+    },
+
+    # --- AGE OF SIGMAR ---
+    {
+        "id": "age-of-sigmar-ultimate-starter-set",
+        "name": "Warhammer Age of Sigmar: Ultimate Starter Set",
+        "category": "age-of-sigmar",
+        "stores": [
+            {
+                "store_name": "Faraos Cigarer",
+                "url": "https://www.faraos.dk/games/warhammerageofsigmar/starter-sets/warhammer-age-of-sigmar-ultimate-starter-set-en"
+            }
+        ]
+    },
+    {
+        "id": "spearhead-stormcast-eternals",
+        "name": "Warhammer Age of Sigmar: Spearhead - Stormcast Eternals",
+        "category": "age-of-sigmar",
+        "stores": [
+            {
+                "store_name": "Faraos Cigarer",
+                "url": "https://www.faraos.dk/games/warhammerageofsigmar/stormcast-eternals/spearhead-stormcast-eternals"
             }
         ]
     }
@@ -76,7 +145,6 @@ def scrape_prices():
                         clean_price_str = re.sub(r'[^\d,.]', '', raw_price).replace(',', '.')
                         clean_price = float(clean_price_str)
                         
-                        # Generer affiliate link automatisk med dit Partner-ID
                         affiliate_link = build_affiliate_link(store_name, store["url"])
                         
                         prod_data["offers"].append({
@@ -85,8 +153,9 @@ def scrape_prices():
                             "link": affiliate_link
                         })
             except Exception as e:
-                print(f"Fejl ved hentning fra {store_name}: {e}")
+                print(f"Fejl ved hentning fra {store_name} for {prod['name']}: {e}")
         
+        # Sorter tilbud så billigste er øverst
         prod_data["offers"].sort(key=lambda x: x["price"])
         results.append(prod_data)
         
