@@ -5,6 +5,7 @@
     "category": "40k",
     "image": "https://www.warhammer.com/resources/product/60010199003_EN40kUltimateStarterSet01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 1049.00, "link": "https://nextlevelgames.dk/products/warhammer-40k-ultimate-starter-set" },
       { "store": "Kelz0r", "price": 1099.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Ultimate+Starter+Set" },
       { "store": "Spilbræt", "price": 1120.00, "link": "https://spilbraet.dk/search?q=Ultimate+Starter+Set" },
       { "store": "Faraos Cigarer", "price": 1150.00, "link": "https://www.faraos.dk/search?q=Warhammer+40000+Ultimate+Starter+Set" }
@@ -16,6 +17,7 @@
     "category": "40k",
     "image": "https://www.warhammer.com/resources/product/60010101004_CombatPatrolSpaceMarinesStock01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 769.00, "link": "https://nextlevelgames.dk/products/combat-patrol-space-marines" },
       { "store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Space+Marines" },
       { "store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Combat+Patrol+Space+Marines" }
     ]
@@ -26,6 +28,7 @@
     "category": "40k",
     "image": "https://www.warhammer.com/resources/product/60010106002_CombatPatrolTyranidsStock01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 769.00, "link": "https://nextlevelgames.dk/products/combat-patrol-tyranids" },
       { "store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Tyranids" },
       { "store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Combat+Patrol+Tyranids" }
     ]
@@ -36,6 +39,7 @@
     "category": "40k",
     "image": "https://www.warhammer.com/resources/product/60010108007_CPAdeptusCustodes01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 769.00, "link": "https://nextlevelgames.dk/products/combat-patrol-adeptus-custodes" },
       { "store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Adeptus+Custodes" },
       { "store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Combat+Patrol+Adeptus+Custodes" }
     ]
@@ -46,6 +50,7 @@
     "category": "40k",
     "image": "https://www.warhammer.com/resources/product/60010199001_EN40kIntroductorySet01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 379.00, "link": "https://nextlevelgames.dk/products/warhammer-40k-introductory-set" },
       { "store": "Kelz0r", "price": 395.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Introductory+Set" },
       { "store": "Faraos Cigarer", "price": 420.00, "link": "https://www.faraos.dk/search?q=Warhammer+40000+Introductory+Set" }
     ]
@@ -56,6 +61,7 @@
     "category": "aos",
     "image": "https://www.warhammer.com/resources/product/60010299035_ENAoSUltimateStarterSet01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 1049.00, "link": "https://nextlevelgames.dk/products/warhammer-age-of-sigmar-ultimate-starter-set" },
       { "store": "Kelz0r", "price": 1089.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Age+of+Sigmar+Ultimate+Starter+Set" },
       { "store": "Faraos Cigarer", "price": 1150.00, "link": "https://www.faraos.dk/search?q=Age+of+Sigmar+Ultimate+Starter+Set" }
     ]
@@ -66,6 +72,7 @@
     "category": "aos",
     "image": "https://www.warhammer.com/resources/product/60010202021_SpearheadStormcastEternals01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 769.00, "link": "https://nextlevelgames.dk/products/spearhead-stormcast-eternals" },
       { "store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Spearhead+Stormcast+Eternals" },
       { "store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Spearhead+Stormcast+Eternals" }
     ]
@@ -76,16 +83,18 @@
     "category": "aos",
     "image": "https://www.warhammer.com/resources/product/60010206018_SpearheadSkaven01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 769.00, "link": "https://nextlevelgames.dk/products/spearhead-skaven" },
       { "store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Spearhead+Skaven" },
       { "store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Spearhead+Skaven" }
     ]
   },
   {
     "id": "paint-set",
-    "name": "Warhammer 40,000: Paint & Tools Set",
+    "name": "Warhammer 40,000: Paints & Tools Set",
     "category": "hobby",
     "image": "https://www.warhammer.com/resources/product/60010199002_ENPaintsAndToolsSet01.jpg",
     "offers": [
+      { "store": "NextLevelGames", "price": 259.00, "link": "https://nextlevelgames.dk/products/warhammer-40k-paints-tools-set" },
       { "store": "Kelz0r", "price": 275.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Paints+and+Tools+Set" },
       { "store": "Faraos Cigarer", "price": 295.00, "link": "https://www.faraos.dk/search?q=Paint+and+tools+set" }
     ]
