@@ -27,41 +27,103 @@
         header {
             background-color: var(--primary);
             color: white;
-            padding: 20px;
+            padding: 30px 20px 20px 20px;
             text-align: center;
         }
 
-        header h1 { margin: 0; font-size: 1.8rem; }
-        header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 0.95rem; }
+        header h1 { margin: 0; font-size: 2rem; }
+        header p { margin: 5px 0 20px 0; opacity: 0.8; font-size: 0.95rem; }
+
+        /* Søge- og Filterbar */
+        .controls {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 0 15px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tag-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .tag-btn.active, .tag-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
 
         main {
             max-width: 800px;
-            margin: 20px auto;
+            margin: 25px auto;
             padding: 0 15px;
         }
 
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .product-img {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f1f5f9;
+            padding: 5px;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex-grow: 1;
         }
 
         .card h2 {
             margin-top: 0;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             color: var(--primary);
             border-bottom: 2px solid var(--border);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .offer-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 8px 0;
             border-bottom: 1px solid var(--border);
         }
 
@@ -78,30 +140,30 @@
         .badge {
             background: #dcfce7;
             color: #166534;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
             text-transform: uppercase;
         }
 
         .price-section {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
-        .price { font-size: 1.1rem; font-weight: 700; }
+        .price { font-size: 1.05rem; font-weight: 700; }
 
         .btn {
             background-color: var(--accent);
             color: white;
             text-decoration: none;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: background 0.2s ease;
+            font-size: 0.85rem;
+            transition: background 0.2s;
         }
 
         .btn:hover { background-color: var(--accent-hover); }
@@ -112,6 +174,12 @@
             font-size: 0.8rem;
             color: #64748b;
         }
+
+        @media (max-width: 600px) {
+            .card { flex-direction: column; align-items: center; text-align: center; }
+            .product-details { width: 100%; }
+            .offer-row { flex-direction: column; gap: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -119,11 +187,21 @@
     <header>
         <h1>Warhammer Prissammenligning</h1>
         <p>Find de laveste priser på danske webshops</p>
+        
+        <div class="controls">
+            <input type="text" id="search-input" class="search-box" placeholder="Søg efter produkt (f.eks. Combat Patrol, Space Marines)...">
+            <div class="filter-tags">
+                <button class="tag-btn active" onclick="filterCategory('all', this)">Alle</button>
+                <button class="tag-btn" onclick="filterCategory('40k', this)">Warhammer 40k</button>
+                <button class="tag-btn" onclick="filterCategory('aos', this)">Age of Sigmar</button>
+                <button class="tag-btn" onclick="filterCategory('hobby', this)">Hobby & Maling</button>
+            </div>
+        </div>
     </header>
 
     <main>
         <div id="product-container">
-            <p style="text-align: center;">Henter seneste priser...</p>
+            <p style="text-align: center;">Henter produkter og priser...</p>
         </div>
     </main>
 
@@ -132,44 +210,74 @@
     </footer>
 
     <script>
+        let allProducts = [];
+        let activeCategory = 'all';
+
         fetch('prices.json')
             .then(res => res.json())
             .then(data => {
-                const container = document.getElementById('product-container');
-                container.innerHTML = '';
+                allProducts = data;
+                renderProducts();
+            })
+            .catch(err => {
+                document.getElementById('product-container').innerHTML = '<p style="text-align:center;">Der opstod en fejl ved indlæsning af priser.</p>';
+            });
 
-                data.forEach(prod => {
-                    let offers = prod.offers || [];
+        function renderProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('product-container');
+            container.innerHTML = '';
 
-                    let offersHTML = '';
-                    if (offers.length > 0) {
-                        offersHTML = offers.map((offer, index) => `
-                            <div class="offer-row">
-                                <div class="store-info">
-                                    <span class="store-name">${offer.store}</span>
-                                    ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
-                                </div>
-                                <div class="price-section">
-                                    <span class="price">${offer.price.toFixed(2)} DKK</span>
-                                    <a href="${offer.link}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        offersHTML = '<p style="color: #64748b; font-size: 0.9rem;">Ingen aktuelle tilbud fundet lige nu.</p>';
-                    }
+            const filtered = allProducts.filter(prod => {
+                const matchesSearch = prod.name.toLowerCase().includes(query);
+                const matchesCategory = activeCategory === 'all' || prod.category === activeCategory;
+                return matchesSearch && matchesCategory;
+            });
 
-                    container.innerHTML += `
-                        <div class="card">
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #64748b;">Ingen produkter matchede din søgning.</p>';
+                return;
+            }
+
+            filtered.forEach(prod => {
+                let offers = prod.offers || [];
+                offers.sort((a, b) => a.price - b.price);
+
+                let offersHTML = offers.map((offer, index) => `
+                    <div class="offer-row">
+                        <div class="store-info">
+                            <span class="store-name">${offer.store}</span>
+                            ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
+                        </div>
+                        <div class="price-section">
+                            <span class="price">${offer.price.toFixed(2)} DKK</span>
+                            <a href="${offer.link}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
+                        </div>
+                    </div>
+                `).join('');
+
+                const fallbackImg = 'https://via.placeholder.com/110?text=Warhammer';
+
+                container.innerHTML += `
+                    <div class="card">
+                        <img src="${prod.image || fallbackImg}" alt="${prod.name}" class="product-img" onerror="this.src='${fallbackImg}'">
+                        <div class="product-details">
                             <h2>${prod.name}</h2>
                             <div>${offersHTML}</div>
                         </div>
-                    `;
-                });
-            })
-            .catch(err => {
-                document.getElementById('product-container').innerHTML = '<p>Der opstod en fejl ved hentning af priser.</p>';
+                    </div>
+                `;
             });
+        }
+
+        document.getElementById('search-input').addEventListener('input', renderProducts);
+
+        function filterCategory(cat, btn) {
+            activeCategory = cat;
+            document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderProducts();
+        }
     </script>
 </body>
 </html>
