@@ -1,57 +1,175 @@
-<script>
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Billigste Warhammer Priser – Sammenlign & Spar</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #16a34a;
+            --accent-hover: #15803d;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 0.95rem; }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.3rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .offer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .offer-row:last-child { border-bottom: none; }
+
+        .store-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .store-name { font-weight: 600; }
+
+        .badge {
+            background: #dcfce7;
+            color: #166534;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .price-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .price { font-size: 1.1rem; font-weight: 700; }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Warhammer Prissammenligning</h1>
+        <p>Find de laveste priser på danske webshops</p>
+    </header>
+
+    <main>
+        <div id="product-container">
+            <p style="text-align: center;">Henter seneste priser...</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Siden indeholder reklamelinks (affiliate). Priser opdateres automatisk.</p>
+    </footer>
+
+    <script>
         fetch('prices.json')
             .then(res => res.json())
             .then(data => {
-                console.log("Hentet data fra prices.json:", data);
                 const container = document.getElementById('product-container');
                 container.innerHTML = '';
 
                 data.forEach(prod => {
-                    // Tjekker om listen over tilbud hedder offers, prices, stores, shops eller deals
-                    let offers = prod.offers || prod.prices || prod.stores || prod.shops || prod.deals || [];
-
-                    // Sorterer tilbud efter pris, hvis prisen er numerisk
-                    offers.sort((a, b) => {
-                        let pA = parseFloat(String(a.price || a.pris || 0).replace(/[^0-9.,]/g, '').replace(',', '.'));
-                        let pB = parseFloat(String(b.price || b.pris || 0).replace(/[^0-9.,]/g, '').replace(',', '.'));
-                        return pA - pB;
-                    });
+                    let offers = prod.offers || [];
 
                     let offersHTML = '';
-
                     if (offers.length > 0) {
-                        offersHTML = offers.map((offer, index) => {
-                            let rawPrice = offer.price || offer.pris || '–';
-                            let storeName = offer.store || offer.shop || offer.butik || offer.webshop || 'Webshop';
-                            let storeLink = offer.link || offer.url || offer.href || '#';
-
-                            return `
-                                <div class="offer-row">
-                                    <div class="store-info">
-                                        <span class="store-name">${storeName}</span>
-                                        ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
-                                    </div>
-                                    <div class="price-section">
-                                        <span class="price">${rawPrice}</span>
-                                        <a href="${storeLink}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
-                                    </div>
+                        offersHTML = offers.map((offer, index) => `
+                            <div class="offer-row">
+                                <div class="store-info">
+                                    <span class="store-name">${offer.store}</span>
+                                    ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
                                 </div>
-                            `;
-                        }).join('');
+                                <div class="price-section">
+                                    <span class="price">${offer.price.toFixed(2)} DKK</span>
+                                    <a href="${offer.link}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
+                                </div>
+                            </div>
+                        `).join('');
                     } else {
-                        offersHTML = '<p style="color: #64748b; font-size: 0.9rem; padding: 8px 0;">Ingen aktuelle tilbud registreret.</p>';
+                        offersHTML = '<p style="color: #64748b; font-size: 0.9rem;">Ingen aktuelle tilbud fundet lige nu.</p>';
                     }
 
                     container.innerHTML += `
                         <div class="card">
-                            <h2>${prod.name || prod.title || 'Produkt'}</h2>
+                            <h2>${prod.name}</h2>
                             <div>${offersHTML}</div>
                         </div>
                     `;
                 });
             })
             .catch(err => {
-                console.error("Fejl ved indlæsning:", err);
                 document.getElementById('product-container').innerHTML = '<p>Der opstod en fejl ved hentning af priser.</p>';
             });
     </script>
+</body>
+</html>
