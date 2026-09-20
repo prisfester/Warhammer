@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Billigste Warhammer Priser – Sammenlign & Spar</title>
+    <title>Warhammerpriser – Sammenlign priser på Warhammer & Hobby</title>
     <style>
         :root {
             --primary: #1e293b;
@@ -31,10 +31,9 @@
             text-align: center;
         }
 
-        header h1 { margin: 0; font-size: 2rem; }
+        header h1 { margin: 0; font-size: 2.2rem; }
         header p { margin: 5px 0 20px 0; opacity: 0.8; font-size: 0.95rem; }
 
-        /* Søge- og Filterbar */
         .controls {
             max-width: 800px;
             margin: 0 auto;
@@ -185,11 +184,11 @@
 <body>
 
     <header>
-        <h1>Warhammer Prissammenligning</h1>
+        <h1>Warhammerpriser</h1>
         <p>Find de laveste priser på danske webshops</p>
         
         <div class="controls">
-            <input type="text" id="search-input" class="search-box" placeholder="Søg efter produkt (f.eks. Combat Patrol, Space Marines)...">
+            <input type="text" id="search-input" class="search-box" placeholder="Søg efter produkt (f.eks. Combat Patrol, Space Marines, Spearhead)...">
             <div class="filter-tags">
                 <button class="tag-btn active" onclick="filterCategory('all', this)">Alle</button>
                 <button class="tag-btn" onclick="filterCategory('40k', this)">Warhammer 40k</button>
@@ -210,6 +209,27 @@
     </footer>
 
     <script>
+        // --- PARTNER-ADS KONFIGURATION ---
+        const PARTNER_ADS_ID = "57563"; // Dit personlige Partner-ID
+        
+        // Indsæt Banner-ID for hver godkendte butik inde fra Partner-ads
+        const BANNER_IDS = {
+            "NextLevelGames": "8103",
+            "Kelz0r": "12345",         // Indsæt Kelz0r Banner ID
+            "Faraos Cigarer": "23456", // Indsæt Faraos Banner ID
+            "Spilbræt": "34567",       // Indsæt Spilbræt Banner ID
+            "Bog & idé": "8640"
+        };
+
+        // Bygger Partner-ads trackinglink automatisk
+        function getAffiliateLink(storeName, rawLink) {
+            const bannerId = BANNER_IDS[storeName];
+            if (bannerId) {
+                return `https://www.partner-ads.com/dk/klikbanner.php?partnerid=${PARTNER_ADS_ID}&bannerid=${bannerId}&htmlurl=${encodeURIComponent(rawLink)}`;
+            }
+            return rawLink;
+        }
+
         let allProducts = [];
         let activeCategory = 'all';
 
@@ -243,18 +263,21 @@
                 let offers = prod.offers || [];
                 offers.sort((a, b) => a.price - b.price);
 
-                let offersHTML = offers.map((offer, index) => `
-                    <div class="offer-row">
-                        <div class="store-info">
-                            <span class="store-name">${offer.store}</span>
-                            ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
+                let offersHTML = offers.map((offer, index) => {
+                    const finalLink = getAffiliateLink(offer.store, offer.link);
+                    return `
+                        <div class="offer-row">
+                            <div class="store-info">
+                                <span class="store-name">${offer.store}</span>
+                                ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
+                            </div>
+                            <div class="price-section">
+                                <span class="price">${offer.price.toFixed(2)} DKK</span>
+                                <a href="${finalLink}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
+                            </div>
                         </div>
-                        <div class="price-section">
-                            <span class="price">${offer.price.toFixed(2)} DKK</span>
-                            <a href="${offer.link}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 const fallbackImg = 'https://via.placeholder.com/110?text=Warhammer';
 
