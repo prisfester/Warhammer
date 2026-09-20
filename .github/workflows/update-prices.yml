@@ -1,0 +1,34 @@
+name: Automatisk Prisopdatering
+
+on:
+  schedule:
+    # Kører hver nat kl. 03:00 UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Gør det muligt at køre scriptet manuelt med et klik
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hent koden
+        uses: actions/checkout@v3
+
+      - name: Opsæt Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Installer pakker
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Kør scraper
+        run: python scraper.py
+
+      - name: Gem opdateret prices.json i repository
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add prices.json
+          git commit -m "Auto-opdatering af priser" || exit 0
+          git push
