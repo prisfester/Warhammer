@@ -1,19 +1,8 @@
 [
     {
-        "id": "warhammer-combat-patrol",
-        "name": "Warhammer 40,000: Combat Patrol",
+        "id": "warhammer-combat-patrol-space-marines",
+        "name": "Warhammer 40,000: Combat Patrol - Space Marines",
         "category": "warhammer",
-        "offers": [
-            {
-                "store": "Hobby Shop A",
-                "price": 850.0,
-                "link": "https://www.partner-ads.com/dk/"
-            },
-            {
-                "store": "Hobby Shop B",
-                "price": 899.0,
-                "link": "https://www.partner-ads.com/dk/"
-            }
-        ]
+        "offers": []
     }
 ]
