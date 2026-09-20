@@ -1,65 +1,46 @@
 import json
 import requests
-import urllib.parse
+from bs4 import BeautifulSoup
 
-# Liste over dine produkter med direkte links til søgeresultater
-PRODUCTS = [
+# Liste over webshops og deres søge-URL'er for Warhammer
+STORES = [
     {
-        "name": "Warhammer 40,000: Ultimate Starter Set",
-        "offers": [
-            {"store": "Faraos Cigarer", "price": 1150.00, "link": "https://www.faraos.dk/search?q=Warhammer+40000+Ultimate+Starter+Set"},
-            {"store": "Kelz0r", "price": 1099.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Ultimate+Starter+Set"},
-            {"store": "Spilbræt", "price": 1120.00, "link": "https://spilbraet.dk/search?q=Ultimate+Starter+Set"}
-        ]
-    },
-    {
-        "name": "Warhammer 40,000: Combat Patrol - Space Marines",
-        "offers": [
-            {"store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Combat+Patrol+Space+Marines"},
-            {"store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Space+Marines"}
-        ]
-    },
-    {
-        "name": "Warhammer 40,000: Combat Patrol - Tyranids",
-        "offers": [
-            {"store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Combat+Patrol+Tyranids"},
-            {"store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Tyranids"}
-        ]
-    },
-    {
-        "name": "Warhammer 40,000: Introductory Set",
-        "offers": [
-            {"store": "Faraos Cigarer", "price": 420.00, "link": "https://www.faraos.dk/search?q=Warhammer+40000+Introductory+Set"},
-            {"store": "Kelz0r", "price": 395.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Introductory+Set"}
-        ]
-    },
-    {
-        "name": "Warhammer Age of Sigmar: Ultimate Starter Set",
-        "offers": [
-            {"store": "Faraos Cigarer", "price": 1150.00, "link": "https://www.faraos.dk/search?q=Age+of+Sigmar+Ultimate+Starter+Set"},
-            {"store": "Kelz0r", "price": 1089.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Age+of+Sigmar+Ultimate+Starter+Set"}
-        ]
-    },
-    {
-        "name": "Warhammer Age of Sigmar: Spearhead - Stormcast Eternals",
-        "offers": [
-            {"store": "Faraos Cigarer", "price": 850.00, "link": "https://www.faraos.dk/search?q=Spearhead+Stormcast+Eternals"},
-            {"store": "Kelz0r", "price": 799.00, "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Spearhead+Stormcast+Eternals"}
-        ]
+        "name": "NextLevelGames",
+        "url": "https://nextlevelgames.dk/collections/warhammer-40k?page=1"
     }
 ]
 
-def main():
-    print("Opdaterer priser i prices.json...")
+def fetch_prices():
+    products = []
     
-    # Sorterer tilbud på hvert produkt så den billigste er øverst
-    for prod in PRODUCTS:
-        prod["offers"].sort(key=lambda x: x["price"])
+    # Eksempel på hentning fra Shopify-baserede sider som NextLevelGames
+    try:
+        response = requests.get("https://nextlevelgames.dk/collections/warhammer-40k/products.json?limit=250")
+        if response.status_code == 200:
+            data = response.json()
+            for item in data.get("products", []):
+                variant = item["variants"][0]
+                products.append({
+                    "id": f"nlg-{item['id']}",
+                    "name": item["title"],
+                    "category": "40k",
+                    "image": item["images"][0]["src"] if item.get("images") else "",
+                    "offers": [
+                        {
+                            "store": "NextLevelGames",
+                            "price": float(variant["price"]),
+                            "link": f"https://nextlevelgames.dk/products/{item['handle']}"
+                        }
+                    ]
+                })
+    except Exception as e:
+        print(f"Fejl ved hentning: {e}")
 
-    with open('prices.json', 'w', encoding='utf-8') as f:
-        json.dump(PRODUCTS, f, ensure_ascii=False, indent=2)
+    # Gem alt til prices.json
+    with open("prices.json", "w", encoding="utf-8") as f:
+        json.dump(products, f, ensure_ascii=False, indent=2)
 
-    print("Succes! Priserne er nu opdateret i prices.json.")
+    print(f"Gemte {len(products)} produkter i prices.json!")
 
 if __name__ == "__main__":
-    main()
+    fetch_prices()
