@@ -12,11 +12,11 @@ PARTNER_ID = "57563"
 STORES_CONFIG = {
     "Faraos Cigarer": {
         "banner_id": "1234",  # Erstat med Faraos Cigarers banner-ID fra Partner-ads
-        "selectors": [".price", ".product-price", ".current-price", "span.price", ".price-wrapper"]
+        "selectors": [".price", ".product-price", ".price-wrapper", "span.price"]
     },
     "Kelz0r": {
         "banner_id": "5678",  # Erstat med Kelz0rs banner-ID fra Partner-ads
-        "selectors": [".price", ".product-price", "span.price", "#product-price"]
+        "selectors": [".price", ".product-price", "#product-price", "span.price"]
     }
 }
 
@@ -24,7 +24,6 @@ STORES_CONFIG = {
 # PRODUKTOVERSIGT
 # ==========================================
 PRODUCTS = [
-    # --- WARHAMMER 40,000 ---
     {
         "id": "warhammer-40k-ultimate-starter-set",
         "name": "Warhammer 40,000: Ultimate Starter Set",
@@ -81,8 +80,6 @@ PRODUCTS = [
             }
         ]
     },
-
-    # --- AGE OF SIGMAR ---
     {
         "id": "age-of-sigmar-ultimate-starter-set",
         "name": "Warhammer Age of Sigmar: Ultimate Starter Set",
@@ -108,18 +105,31 @@ PRODUCTS = [
 ]
 
 def build_affiliate_link(store_name, product_url):
-    """Bygger automatisk et Partner-ads affiliate link ud fra almindelig URL"""
     if store_name in STORES_CONFIG:
         banner_id = STORES_CONFIG[store_name]["banner_id"]
         encoded_url = quote(product_url, safe='')
         return f"https://www.partner-ads.com/dk/klikban.php?partnerid={PARTNER_ID}&bannerid={banner_id}&htmlurl={encoded_url}"
     return product_url
 
+def parse_price(raw_text):
+    """Renser teksten og udtrækker det første gyldige tal som float."""
+    if not raw_text:
+        return None
+    # Fjern usynlige tegn og erstat komma med punktum
+    clean_text = raw_text.replace('\xa0', '').replace(' ', '').replace(',', '.')
+    match = re.search(r'(\d+(?:\.\d+)?)', clean_text)
+    if match:
+        try:
+            return float(match.group(1))
+        except ValueError:
+            return None
+    return None
+
 def scrape_prices():
     results = []
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept-Language': 'da-DK,da;q=0.9,en-US;q=0.8,en;q=0.7'
+        'Accept-Language': 'da-DK,da;q=0.9'
     }
     
     for prod in PRODUCTS:
@@ -136,32 +146,26 @@ def scrape_prices():
             selectors = store_info.get("selectors", [".price"])
             
             try:
-                response = requests.get(store["url"], headers=headers, timeout=12)
+                response = requests.get(store["url"], headers=headers, timeout=10)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     
-                    price_element = None
+                    price_val = None
                     for sel in selectors:
                         found = soup.select_one(sel)
-                        if found and re.search(r'\d', found.get_text()):
-                            price_element = found
-                            break
+                        if found:
+                            parsed = parse_price(found.get_text())
+                            if parsed is not None:
+                                price_val = parsed
+                                break
                     
-                    if price_element:
-                        raw_price = price_element.get_text()
-                        # Udtræk tal inkl. komma/punktum
-                        match = re.search(r'(\d+[\.,]?\d*)', raw_price.replace(' ', ''))
-                        if match:
-                            clean_price_str = match.group(1).replace(',', '.')
-                            clean_price = float(clean_price_str)
-                            
-                            affiliate_link = build_affiliate_link(store_name, store["url"])
-                            
-                            prod_data["offers"].append({
-                                "store": store_name,
-                                "price": clean_price,
-                                "link": affiliate_link
-                            })
+                    if price_val is not None:
+                        affiliate_link = build_affiliate_link(store_name, store["url"])
+                        prod_data["offers"].append({
+                            "store": store_name,
+                            "price": price_val,
+                            "link": affiliate_link
+                        })
             except Exception as e:
                 print(f"Fejl ved hentning fra {store_name} for {prod['name']}: {e}")
         
@@ -171,7 +175,7 @@ def scrape_prices():
     with open('prices.json', 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=4)
         
-    print("Priser og affiliate-links opdateret!")
+    print("Priser og affiliate-links opdateret uden fejl!")
 
 if __name__ == "__main__":
     scrape_prices()
