@@ -6,17 +6,16 @@ from urllib.parse import quote
 
 # ==========================================
 # PARTNER-ADS KONFIGURATION
-# Indtast dit Partner-ID og Banners/Program-ID for butikkerne her
 # ==========================================
-PARTNER_ID = "57563" # Erstat med dit Partner-ads ID (f.eks. 12345)
+PARTNER_ID = "57563"
 
 STORES_CONFIG = {
     "Faraos Cigarer": {
-        "banner_id": "1234", # Erstat med banner/program-ID for Faraos Cigarer hos Partner-ads
+        "banner_id": "1234", # Erstat med Faraos Cigarers banner/program-ID fra Partner-ads
         "price_selector": ".price"
     },
     "Kelz0r": {
-        "banner_id": "5678", # Erstat med banner/program-ID for Kelz0r hos Partner-ads
+        "banner_id": "5678", # Erstat med Kelz0rs banner/program-ID fra Partner-ads
         "price_selector": ".product-price"
     }
 }
@@ -41,11 +40,11 @@ PRODUCTS = [
 
 def build_affiliate_link(store_name, product_url):
     """Bygger automatisk et Partner-ads affiliate link ud fra almindelig URL"""
-    if store_name in STORES_CONFIG and PARTNER_ID != "DIT_PARTNER_ID":
+    if store_name in STORES_CONFIG:
         banner_id = STORES_CONFIG[store_name]["banner_id"]
         encoded_url = quote(product_url, safe='')
         return f"https://www.partner-ads.com/dk/klikban.php?partnerid={PARTNER_ID}&bannerid={banner_id}&htmlurl={encoded_url}"
-    return product_url # Returnerer standard-link hvis Partner-ID ikke er sat endnu
+    return product_url
 
 def scrape_prices():
     results = []
@@ -77,7 +76,7 @@ def scrape_prices():
                         clean_price_str = re.sub(r'[^\d,.]', '', raw_price).replace(',', '.')
                         clean_price = float(clean_price_str)
                         
-                        # Generer affiliate link automatisk
+                        # Generer affiliate link automatisk med dit Partner-ID
                         affiliate_link = build_affiliate_link(store_name, store["url"])
                         
                         prod_data["offers"].append({
