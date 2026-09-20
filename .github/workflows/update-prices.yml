@@ -7,7 +7,7 @@ on:
 
 jobs:
   scrape-and-update:
-    runs-runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Hent koden
         uses: actions/checkout@v4
