@@ -12,16 +12,16 @@ PARTNER_ID = "57563"
 STORES_CONFIG = {
     "Faraos Cigarer": {
         "banner_id": "1234",  # Erstat med Faraos Cigarers banner-ID fra Partner-ads
-        "price_selector": ".price"
+        "selectors": [".price", ".product-price", ".current-price", "span.price", ".price-wrapper"]
     },
     "Kelz0r": {
         "banner_id": "5678",  # Erstat med Kelz0rs banner-ID fra Partner-ads
-        "price_selector": ".price, .product-price, span.price"
+        "selectors": [".price", ".product-price", "span.price", "#product-price"]
     }
 }
 
 # ==========================================
-# PRODUKTOVERSIGT (De mest populære sæt)
+# PRODUKTOVERSIGT
 # ==========================================
 PRODUCTS = [
     # --- WARHAMMER 40,000 ---
@@ -118,7 +118,8 @@ def build_affiliate_link(store_name, product_url):
 def scrape_prices():
     results = []
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept-Language': 'da-DK,da;q=0.9,en-US;q=0.8,en;q=0.7'
     }
     
     for prod in PRODUCTS:
@@ -132,37 +133,45 @@ def scrape_prices():
         for store in prod["stores"]:
             store_name = store["store_name"]
             store_info = STORES_CONFIG.get(store_name, {})
-            price_selector = store_info.get("price_selector", ".price")
+            selectors = store_info.get("selectors", [".price"])
             
             try:
-                response = requests.get(store["url"], headers=headers, timeout=10)
+                response = requests.get(store["url"], headers=headers, timeout=12)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
-                    price_element = soup.select_one(price_selector)
+                    
+                    price_element = None
+                    for sel in selectors:
+                        found = soup.select_one(sel)
+                        if found and re.search(r'\d', found.get_text()):
+                            price_element = found
+                            break
                     
                     if price_element:
                         raw_price = price_element.get_text()
-                        clean_price_str = re.sub(r'[^\d,.]', '', raw_price).replace(',', '.')
-                        clean_price = float(clean_price_str)
-                        
-                        affiliate_link = build_affiliate_link(store_name, store["url"])
-                        
-                        prod_data["offers"].append({
-                            "store": store_name,
-                            "price": clean_price,
-                            "link": affiliate_link
-                        })
+                        # Udtræk tal inkl. komma/punktum
+                        match = re.search(r'(\d+[\.,]?\d*)', raw_price.replace(' ', ''))
+                        if match:
+                            clean_price_str = match.group(1).replace(',', '.')
+                            clean_price = float(clean_price_str)
+                            
+                            affiliate_link = build_affiliate_link(store_name, store["url"])
+                            
+                            prod_data["offers"].append({
+                                "store": store_name,
+                                "price": clean_price,
+                                "link": affiliate_link
+                            })
             except Exception as e:
                 print(f"Fejl ved hentning fra {store_name} for {prod['name']}: {e}")
         
-        # Sorter tilbud så billigste er øverst
         prod_data["offers"].sort(key=lambda x: x["price"])
         results.append(prod_data)
         
     with open('prices.json', 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=4)
         
-    print("Priser og affiliate-links succesfuldt opdateret!")
+    print("Priser og affiliate-links opdateret!")
 
 if __name__ == "__main__":
     scrape_prices()
