@@ -1,181 +1,122 @@
-import requests
-from bs4 import BeautifulSoup
 import json
 import re
-from urllib.parse import quote
+import requests
+from bs4 import BeautifulSoup
 
-# ==========================================
-# PARTNER-ADS KONFIGURATION
-# ==========================================
-PARTNER_ID = "57563"
-
-STORES_CONFIG = {
-    "Faraos Cigarer": {
-        "banner_id": "1234",  # Erstat med Faraos Cigarers banner-ID fra Partner-ads
-        "selectors": [".price", ".product-price", ".price-wrapper", "span.price"]
-    },
-    "Kelz0r": {
-        "banner_id": "5678",  # Erstat med Kelz0rs banner-ID fra Partner-ads
-        "selectors": [".price", ".product-price", "#product-price", "span.price"]
-    }
-}
-
-# ==========================================
-# PRODUKTOVERSIGT
-# ==========================================
+# Liste over produkter og søgeord til danske Warhammer-butikker
 PRODUCTS = [
     {
-        "id": "warhammer-40k-ultimate-starter-set",
         "name": "Warhammer 40,000: Ultimate Starter Set",
-        "category": "warhammer-40k",
-        "stores": [
-            {
-                "store_name": "Faraos Cigarer",
-                "url": "https://www.faraos.dk/games/warhammer40k/startersets/warhammer-40.000-ultimate-starter-set-en"
-            },
-            {
-                "store_name": "Kelz0r",
-                "url": "https://www.kelz0r.dk/magic/warhammer-40000-ultimate-starter-set-eng-p-26305.html"
-            }
-        ]
+        "search_term": "Warhammer 40000 Ultimate Starter Set"
     },
     {
-        "id": "warhammer-combat-patrol-space-marines",
         "name": "Warhammer 40,000: Combat Patrol - Space Marines",
-        "category": "warhammer-40k",
-        "stores": [
-            {
-                "store_name": "Faraos Cigarer",
-                "url": "https://www.faraos.dk/games/warhammer40k/spacemarines/combat-patrol-space-marines"
-            },
-            {
-                "store_name": "Kelz0r",
-                "url": "https://www.kelz0r.dk/magic/warhammer-40000-combat-patrol-space-marines-p-26306.html"
-            }
-        ]
+        "search_term": "Combat Patrol Space Marines"
     },
     {
-        "id": "warhammer-combat-patrol-ultimate-tyranids",
         "name": "Warhammer 40,000: Combat Patrol - Tyranids",
-        "category": "warhammer-40k",
-        "stores": [
-            {
-                "store_name": "Faraos Cigarer",
-                "url": "https://www.faraos.dk/games/warhammer40k/tyranids/combat-patrol-tyranids"
-            },
-            {
-                "store_name": "Kelz0r",
-                "url": "https://www.kelz0r.dk/magic/warhammer-40000-combat-patrol-tyranids-p-26307.html"
-            }
-        ]
+        "search_term": "Combat Patrol Tyranids"
     },
     {
-        "id": "warhammer-40k-introductory-set",
         "name": "Warhammer 40,000: Introductory Set",
-        "category": "warhammer-40k",
-        "stores": [
-            {
-                "store_name": "Faraos Cigarer",
-                "url": "https://www.faraos.dk/games/warhammer40k/startersets/warhammer-40.000-introductory-set-en"
-            }
-        ]
+        "search_term": "Warhammer 40000 Introductory Set"
     },
     {
-        "id": "age-of-sigmar-ultimate-starter-set",
         "name": "Warhammer Age of Sigmar: Ultimate Starter Set",
-        "category": "age-of-sigmar",
-        "stores": [
-            {
-                "store_name": "Faraos Cigarer",
-                "url": "https://www.faraos.dk/games/warhammerageofsigmar/starter-sets/warhammer-age-of-sigmar-ultimate-starter-set-en"
-            }
-        ]
+        "search_term": "Age of Sigmar Ultimate Starter Set"
     },
     {
-        "id": "spearhead-stormcast-eternals",
         "name": "Warhammer Age of Sigmar: Spearhead - Stormcast Eternals",
-        "category": "age-of-sigmar",
-        "stores": [
-            {
-                "store_name": "Faraos Cigarer",
-                "url": "https://www.faraos.dk/games/warhammerageofsigmar/stormcast-eternals/spearhead-stormcast-eternals"
-            }
-        ]
+        "search_term": "Spearhead Stormcast Eternals"
     }
 ]
 
-def build_affiliate_link(store_name, product_url):
-    if store_name in STORES_CONFIG:
-        banner_id = STORES_CONFIG[store_name]["banner_id"]
-        encoded_url = quote(product_url, safe='')
-        return f"https://www.partner-ads.com/dk/klikban.php?partnerid={PARTNER_ID}&bannerid={banner_id}&htmlurl={encoded_url}"
-    return product_url
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
 
-def parse_price(raw_text):
-    """Renser teksten og udtrækker det første gyldige tal som float."""
-    if not raw_text:
+def clean_price(price_str):
+    """Trækker kun tal ud fra en prisstreng"""
+    if not price_str:
         return None
-    # Fjern usynlige tegn og erstat komma med punktum
-    clean_text = raw_text.replace('\xa0', '').replace(' ', '').replace(',', '.')
-    match = re.search(r'(\d+(?:\.\d+)?)', clean_text)
-    if match:
-        try:
-            return float(match.group(1))
-        except ValueError:
-            return None
+    cleaned = re.sub(r'[^\d,.]', '', price_str)
+    cleaned = cleaned.replace('.', '').replace(',', '.')
+    try:
+        return float(cleaned)
+    except ValueError:
+        return None
+
+def scrape_faraos(search_term):
+    """Scraper Faraos Cigarer"""
+    try:
+        url = f"https://www.faraos.dk/search?q={requests.utils.quote(search_term)}"
+        res = requests.get(url, headers=HEADERS, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            item = soup.select_one('.product-list-item, .product-card, .product-box')
+            if item:
+                link_el = item.select_one('a[href]')
+                price_el = item.select_one('.price, .product-price, .current-price')
+                if link_el and price_el:
+                    link = link_el['href']
+                    if not link.startswith('http'):
+                        link = 'https://www.faraos.dk' + link
+                    price = clean_price(price_el.get_text())
+                    if price:
+                        return {"store": "Faraos Cigarer", "price": price, "link": link}
+    except Exception as e:
+        print(f"Fejl ved Faraos ({search_term}): {e}")
     return None
 
-def scrape_prices():
+def scrape_kelz0r(search_term):
+    """Scraper Kelz0r"""
+    try:
+        url = f"https://www.kelz0r.dk/dk/advanced_search_result.php?keywords={requests.utils.quote(search_term)}"
+        res = requests.get(url, headers=HEADERS, timeout=10)
+        if res.status_code == 200:
+            soup = BeautifulSoup(res.text, 'html.parser')
+            product = soup.select_one('.productListing-even, .productListing-odd, .product-card')
+            if product:
+                link_el = product.select_one('a[href]')
+                price_el = product.select_one('.productSpecialPrice, .price, .productListing-heading + td')
+                if link_el and price_el:
+                    link = link_el['href']
+                    price = clean_price(price_el.get_text())
+                    if price:
+                        return {"store": "Kelz0r", "price": price, "link": link}
+    except Exception as e:
+        print(f"Fejl ved Kelz0r ({search_term}): {e}")
+    return None
+
+def main():
     results = []
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept-Language': 'da-DK,da;q=0.9'
-    }
-    
+
     for prod in PRODUCTS:
-        prod_data = {
-            "id": prod["id"],
-            "name": prod["name"],
-            "category": prod["category"],
-            "offers": []
-        }
-        
-        for store in prod["stores"]:
-            store_name = store["store_name"]
-            store_info = STORES_CONFIG.get(store_name, {})
-            selectors = store_info.get("selectors", [".price"])
-            
-            try:
-                response = requests.get(store["url"], headers=headers, timeout=10)
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    
-                    price_val = None
-                    for sel in selectors:
-                        found = soup.select_one(sel)
-                        if found:
-                            parsed = parse_price(found.get_text())
-                            if parsed is not None:
-                                price_val = parsed
-                                break
-                    
-                    if price_val is not None:
-                        affiliate_link = build_affiliate_link(store_name, store["url"])
-                        prod_data["offers"].append({
-                            "store": store_name,
-                            "price": price_val,
-                            "link": affiliate_link
-                        })
-            except Exception as e:
-                print(f"Fejl ved hentning fra {store_name} for {prod['name']}: {e}")
-        
-        prod_data["offers"].sort(key=lambda x: x["price"])
-        results.append(prod_data)
-        
+        print(f"Søger efter: {prod['name']}...")
+        offers = []
+
+        # Hent tilbud fra butikkerne
+        faraos_offer = scrape_faraos(prod['search_term'])
+        if faraos_offer:
+            offers.append(faraos_offer)
+
+        kelz0r_offer = scrape_kelz0r(prod['search_term'])
+        if kelz0r_offer:
+            offers.append(kelz0r_offer)
+
+        # Sorter tilbud så billigste er først
+        offers.sort(key=lambda x: x['price'])
+
+        results.append({
+            "name": prod['name'],
+            "offers": offers
+        })
+
+    # Gem resultaterne direkte i prices.json
     with open('prices.json', 'w', encoding='utf-8') as f:
-        json.dump(results, f, ensure_ascii=False, indent=4)
-        
-    print("Priser og affiliate-links opdateret uden fejl!")
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+    print("Priser gemt succesfuldt i prices.json!")
 
 if __name__ == "__main__":
-    scrape_prices()
+    main()
