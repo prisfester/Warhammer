@@ -1,38 +1,97 @@
 [
-    {
-        "id": "warhammer-40k-ultimate-starter-set",
-        "name": "Warhammer 40,000: Ultimate Starter Set",
-        "category": "warhammer-40k",
-        "offers": []
-    },
-    {
-        "id": "warhammer-combat-patrol-space-marines",
-        "name": "Warhammer 40,000: Combat Patrol - Space Marines",
-        "category": "warhammer-40k",
-        "offers": []
-    },
-    {
-        "id": "warhammer-combat-patrol-ultimate-tyranids",
-        "name": "Warhammer 40,000: Combat Patrol - Tyranids",
-        "category": "warhammer-40k",
-        "offers": []
-    },
-    {
-        "id": "warhammer-40k-introductory-set",
-        "name": "Warhammer 40,000: Introductory Set",
-        "category": "warhammer-40k",
-        "offers": []
-    },
-    {
-        "id": "age-of-sigmar-ultimate-starter-set",
-        "name": "Warhammer Age of Sigmar: Ultimate Starter Set",
-        "category": "age-of-sigmar",
-        "offers": []
-    },
-    {
-        "id": "spearhead-stormcast-eternals",
-        "name": "Warhammer Age of Sigmar: Spearhead - Stormcast Eternals",
-        "category": "age-of-sigmar",
-        "offers": []
-    }
+  {
+    "name": "Warhammer 40,000: Ultimate Starter Set",
+    "offers": [
+      {
+        "store": "Kelz0r",
+        "price": 1099.00,
+        "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Ultimate+Starter+Set"
+      },
+      {
+        "store": "Spilbræt",
+        "price": 1120.00,
+        "link": "https://spilbraet.dk/search?q=Ultimate+Starter+Set"
+      },
+      {
+        "store": "Faraos Cigarer",
+        "price": 1150.00,
+        "link": "https://www.faraos.dk/search?q=Warhammer+40000+Ultimate+Starter+Set"
+      }
+    ]
+  },
+  {
+    "name": "Warhammer 40,000: Combat Patrol - Space Marines",
+    "offers": [
+      {
+        "store": "Kelz0r",
+        "price": 799.00,
+        "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Space+Marines"
+      },
+      {
+        "store": "Faraos Cigarer",
+        "price": 850.00,
+        "link": "https://www.faraos.dk/search?q=Combat+Patrol+Space+Marines"
+      }
+    ]
+  },
+  {
+    "name": "Warhammer 40,000: Combat Patrol - Tyranids",
+    "offers": [
+      {
+        "store": "Kelz0r",
+        "price": 799.00,
+        "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Combat+Patrol+Tyranids"
+      },
+      {
+        "store": "Faraos Cigarer",
+        "price": 850.00,
+        "link": "https://www.faraos.dk/search?q=Combat+Patrol+Tyranids"
+      }
+    ]
+  },
+  {
+    "name": "Warhammer 40,000: Introductory Set",
+    "offers": [
+      {
+        "store": "Kelz0r",
+        "price": 395.00,
+        "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Introductory+Set"
+      },
+      {
+        "store": "Faraos Cigarer",
+        "price": 420.00,
+        "link": "https://www.faraos.dk/search?q=Warhammer+40000+Introductory+Set"
+      }
+    ]
+  },
+  {
+    "name": "Warhammer Age of Sigmar: Ultimate Starter Set",
+    "offers": [
+      {
+        "store": "Kelz0r",
+        "price": 1089.00,
+        "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Age+of+Sigmar+Ultimate+Starter+Set"
+      },
+      {
+        "store": "Faraos Cigarer",
+        "price": 1150.00,
+        "link": "https://www.faraos.dk/search?q=Age+of+Sigmar+Ultimate+Starter+Set"
+      }
+    ]
+  },
+  {
+    "name": "Warhammer Age of Sigmar: Spearhead - Stormcast Eternals",
+    "offers": [
+      {
+        "store": "Kelz0r",
+        "price": 799.00,
+        "link": "https://www.kelz0r.dk/dk/advanced_search_result.php?keywords=Spearhead+Stormcast+Eternals"
+      },
+      {
+        "store": "Faraos Cigarer",
+        "price": 850.00,
+        "link": "https://www.faraos.dk/search?q=Spearhead+Stormcast+Eternals"
+      }
+    ]
+  }
 ]
