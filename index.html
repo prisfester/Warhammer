@@ -2,28 +2,28 @@
         fetch('prices.json')
             .then(res => res.json())
             .then(data => {
+                console.log("Hentet data fra prices.json:", data);
                 const container = document.getElementById('product-container');
                 container.innerHTML = '';
 
                 data.forEach(prod => {
-                    let offers = prod.offers || [];
+                    // Tjekker om listen over tilbud hedder offers, prices, stores, shops eller deals
+                    let offers = prod.offers || prod.prices || prod.stores || prod.shops || prod.deals || [];
 
-                    // Sorterer så den billigste automatisk ligger øverst
-                    offers.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+                    // Sorterer tilbud efter pris, hvis prisen er numerisk
+                    offers.sort((a, b) => {
+                        let pA = parseFloat(String(a.price || a.pris || 0).replace(/[^0-9.,]/g, '').replace(',', '.'));
+                        let pB = parseFloat(String(b.price || b.pris || 0).replace(/[^0-9.,]/g, '').replace(',', '.'));
+                        return pA - pB;
+                    });
 
                     let offersHTML = '';
 
                     if (offers.length > 0) {
                         offersHTML = offers.map((offer, index) => {
-                            // Håndterer om prisen er et tal eller en tekst
-                            let rawPrice = offer.price;
-                            let formattedPrice = typeof rawPrice === 'number' 
-                                ? rawPrice.toFixed(2) + ' DKK' 
-                                : rawPrice;
-
-                            // Håndterer skiftende feltnavne fra scraperen
-                            let storeName = offer.store || offer.shop || 'Webshop';
-                            let storeLink = offer.link || offer.url || '#';
+                            let rawPrice = offer.price || offer.pris || '–';
+                            let storeName = offer.store || offer.shop || offer.butik || offer.webshop || 'Webshop';
+                            let storeLink = offer.link || offer.url || offer.href || '#';
 
                             return `
                                 <div class="offer-row">
@@ -32,26 +32,26 @@
                                         ${index === 0 ? '<span class="badge">Billigst</span>' : ''}
                                     </div>
                                     <div class="price-section">
-                                        <span class="price">${formattedPrice}</span>
+                                        <span class="price">${rawPrice}</span>
                                         <a href="${storeLink}" target="_blank" rel="nofollow sponsored" class="btn">Gå til shop</a>
                                     </div>
                                 </div>
                             `;
                         }).join('');
                     } else {
-                        offersHTML = '<p style="color: #64748b; font-size: 0.9rem;">Ingen aktuelle tilbud fundet.</p>';
+                        offersHTML = '<p style="color: #64748b; font-size: 0.9rem; padding: 8px 0;">Ingen aktuelle tilbud registreret.</p>';
                     }
 
                     container.innerHTML += `
                         <div class="card">
-                            <h2>${prod.name}</h2>
+                            <h2>${prod.name || prod.title || 'Produkt'}</h2>
                             <div>${offersHTML}</div>
                         </div>
                     `;
                 });
             })
             .catch(err => {
-                console.error("Fejl:", err);
+                console.error("Fejl ved indlæsning:", err);
                 document.getElementById('product-container').innerHTML = '<p>Der opstod en fejl ved hentning af priser.</p>';
             });
     </script>
